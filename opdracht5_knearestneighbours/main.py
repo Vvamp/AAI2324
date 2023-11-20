@@ -7,6 +7,7 @@ import math
 class FeatureVector:
     """This class specifies feature vector definition used for the weather datasets
     """
+
     def __init__(self, feature_array: np.ndarray):
         """Initializes the feature vector based on a np.ndarray with 7 elements. Each element should match the specification on the Canvas assignment 5 page.
 
@@ -33,7 +34,8 @@ class FeatureVector:
 class Dataset:
     """This class specifies a weather data dataset
     """
-    def __init__(self, filename : str, normalizeInput : bool, containsLabels : bool, year : int):
+
+    def __init__(self, filename: str, normalizeInput: bool, containsLabels: bool, year: int):
         """Initializes the dataset object based on a csv file
 
         Args:
@@ -47,8 +49,9 @@ class Dataset:
         self.hasLabels = containsLabels
         self.year = year
         self.vectors = None
-        self.labels = None # Labels are the season for each vector, where labels[i] should correspond to vectors[i]
-        self.raw_array_data = None # Raw numpy array data
+        # Labels are the season for each vector, where labels[i] should correspond to vectors[i]
+        self.labels = None
+        self.raw_array_data = None  # Raw numpy array data
         self.load_dataset()
         self.load_dataset_labels()
 
@@ -64,9 +67,9 @@ class Dataset:
                 7: lambda s: 0 if s == b"-1" else float(s),
             },
         )
-        
+
         # Load the raw numpy data into 'FeatureVector' objects for readability
-        self.vectors = [] 
+        self.vectors = []
         for data_row in self.raw_array_data:
             self.vectors.append(FeatureVector(data_row))
 
@@ -100,8 +103,10 @@ class Dataset:
             Tuple[List[float], List[float]]: A tuple with 2 lists: a list with the minimum and maximum values for each column, respectively
         """
         # Initialize an array with a max/min value for each column in the dataset
-        min_val_per_column = [math.inf for column_index in range(0, len(training_sets[0].raw_array_data[0]))]
-        max_val_per_column = [-math.inf for column_index in range(0, len(training_sets[0].raw_array_data[0]))]
+        min_val_per_column = [math.inf for column_index in range(
+            0, len(training_sets[0].raw_array_data[0]))]
+        max_val_per_column = [-math.inf for column_index in range(
+            0, len(training_sets[0].raw_array_data[0]))]
 
         # For each column in each training set, overwrite the min/max if they are lower or higher respectively
         for training_set in training_sets:
@@ -125,10 +130,11 @@ class Dataset:
             training_sets (list[Dataset]): All datasets to include in the minimum and maximum value calculations. Only datasets with the 'doNormalize' flag set are actually affected.
         """
         new_columns = []
-        min_val_per_column, max_val_per_column = Dataset.calculate_min_max(training_sets)
+        min_val_per_column, max_val_per_column = Dataset.calculate_min_max(
+            training_sets)
         for training_set in training_sets:
             if training_set.doNormalize == False:
-                continue 
+                continue
 
             for column_index in range(0, len(training_sets[0].raw_array_data[0])):
                 min_val = min_val_per_column[column_index]
@@ -145,10 +151,12 @@ class Dataset:
             for data_row in normalized_data:
                 training_set.vectors.append(FeatureVector(data_row))
 
+
 class Classifier:
     """This class combines the functions to classify a feature vector, based on a given dataset as training data
     """
-    def __init__(self, training_set : Dataset, vector_to_classify : FeatureVector, k_value : int = 58):
+
+    def __init__(self, training_set: Dataset, vector_to_classify: FeatureVector, k_value: int = 58):
         """Initializes a classifier object. Needs a training dataset and an unclassified feature vector
 
         Args:
@@ -180,7 +188,6 @@ class Classifier:
         )
         return math.sqrt(distance_squared)
 
-
     def get_vector_classification(self) -> float:
         """Computes the classification for the feature vector passed in the constructor, based on the training dataset also passed in the constructor
         """
@@ -190,7 +197,8 @@ class Classifier:
             Returns:
                 List<(float, FeatureVector, str)>: A list of tuples, where each tuple has the computed distance between the training vector and the unclassified feature vector, the training feature vector itself and the training feature vector label
             """
-            instances_by_distance = []  # List of tuple with elements: (Distance to , vector compared against, )
+            instances_by_distance = [
+            ]  # List of tuple with elements: (Distance to , vector compared against, )
             # Calculate distance to each vector in the training set from the vector to classify
             for element_index in range(0, len(self.training_set.vectors)):
                 training_vector = self.training_set.vectors[element_index]
@@ -205,7 +213,7 @@ class Classifier:
             return instances_by_distance
 
         # Sort by instances by distance and get the first 'k' closest
-        def get_k_closest_instances(instances_by_distance : List[(float, FeatureVector, str)]):
+        def get_k_closest_instances(instances_by_distance: List[(float, FeatureVector, str)]):
             """Returns the 'k' amount of closest instances of training vectors based on their distance
 
             Args:
@@ -218,7 +226,7 @@ class Classifier:
             return instances_by_distance[0:self.k_value]
 
         # Count occurrences by label
-        def get_label_occurrence_counts(closest_instances : List[(float, FeatureVector, str)]):
+        def get_label_occurrence_counts(closest_instances: List[(float, FeatureVector, str)]):
             """Counts the amount of times each label occurs in the given list
 
             Args:
@@ -245,7 +253,8 @@ class Classifier:
 class KnnAlgorithm:
     """This class combines the functions and data that are required for the K-Nearest Neighbors Algorithm
     """
-    def __init__(self, training_dataset : Dataset, processing_dataset : Dataset):
+
+    def __init__(self, training_dataset: Dataset, processing_dataset: Dataset):
         """Initializes a K-Nearest Neighbors algorithm based on a training/classification dataset and a dataset that needs processing
 
         Args:
@@ -254,10 +263,10 @@ class KnnAlgorithm:
         """
         self.training_dataset = training_dataset
         self.processing_dataset = processing_dataset
-        Dataset.normalize([self.training_dataset, self.processing_dataset]) # Normalize all datasets that need to be normalized(based on the value passed to their constructor)
-       
-        
-    def find_best_kvalue(self, max_iterations : int = 250) -> int:
+        # Normalize all datasets that need to be normalized(based on the value passed to their constructor)
+        Dataset.normalize([self.training_dataset, self.processing_dataset])
+
+    def find_best_kvalue(self, max_iterations: int = 250) -> int:
         """Attempts to find the best k_value for the processing dataset(can only be done if the 'processing dataset' has labels, as these are used to verify the results)z
 
         Args:
@@ -269,10 +278,11 @@ class KnnAlgorithm:
         current_iteration_success_percentage = 1
         current_iteration_k_value = 1
         k_results = []
-        
+
         # Run the 'get_success_percentage' for each value of K between 1 and 'max_iterations' (step_size = 1) and append the result in 'k_results'
         while current_iteration_k_value < max_iterations:
-            current_iteration_success_percentage = self.get_success_percentage(current_iteration_k_value)
+            current_iteration_success_percentage = self.get_success_percentage(
+                current_iteration_k_value)
             current_iteration_k_value += 1
             k_results.append(current_iteration_success_percentage)
 
@@ -280,8 +290,8 @@ class KnnAlgorithm:
         best_k_percentage = max(k_results)
         best_k_value = k_results.index(best_k_percentage) + 1
         return best_k_value
-        
-    def get_success_percentage(self, k_value : int = 58) -> float:
+
+    def get_success_percentage(self, k_value: int = 58) -> float:
         """Classifies each element in the processing dataset, based on the training dataset using the passed k_value, and checks if they are correct
 
         Args:
@@ -302,6 +312,7 @@ class KnnAlgorithm:
                 correct_entries += 1.0
 
         return correct_entries / total_entries * 100
+
 
 if __name__ == "__main__":
     training_set = Dataset("dataset1.csv", False, True, 2000)
