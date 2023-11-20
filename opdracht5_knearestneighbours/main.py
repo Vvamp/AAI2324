@@ -148,7 +148,7 @@ class Dataset:
 class Classifier:
     """This class combines the functions to classify a feature vector, based on a given dataset as training data
     """
-    def __init__(self, training_set : Dataset, vector_to_classify : FeatureVector, k_value = 58 : int):
+    def __init__(self, training_set : Dataset, vector_to_classify : FeatureVector, k_value : int = 58):
         """Initializes a classifier object. Needs a training dataset and an unclassified feature vector
 
         Args:
@@ -257,7 +257,7 @@ class KnnAlgorithm:
         Dataset.normalize([self.training_dataset, self.processing_dataset]) # Normalize all datasets that need to be normalized(based on the value passed to their constructor)
        
         
-    def find_best_kvalue(self, max_iterations=250 : int) -> int:
+    def find_best_kvalue(self, max_iterations : int = 250) -> int:
         """Attempts to find the best k_value for the processing dataset(can only be done if the 'processing dataset' has labels, as these are used to verify the results)z
 
         Args:
@@ -281,7 +281,7 @@ class KnnAlgorithm:
         best_k_value = k_results.index(best_k_percentage) + 1
         return best_k_value
         
-    def get_success_percentage(self, k_value=58 : int) -> float:
+    def get_success_percentage(self, k_value : int = 58) -> float:
         """Classifies each element in the processing dataset, based on the training dataset using the passed k_value, and checks if they are correct
 
         Args:
