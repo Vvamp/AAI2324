@@ -1,0 +1,275 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[a4paper]{report}
+%\usepackage[date=short,backend=biber]{apa}
+\usepackage[hidelinks]{hyperref}
+\usepackage{apacite}
+\usepackage[dutch]{babel}
+\usepackage[a4paper, left=1in, right=1in, top=1in, bottom=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{nameref}
+\usepackage{helvet}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage[table]{xcolor}
+\usepackage{nameref}
+\usepackage{tcolorbox}
+\usepackage{textcomp}
+\usepackage{colortbl}
+\usepackage{glossaries}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{pgffor}
+\usepackage{listings}
+
+\definecolor{bg}{rgb}{0.1, 0.1, 0.1}
+
+% Styling
+\renewcommand{\rmdefault}{\sfdefault}
+\pagestyle{fancy}
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+
+\fancyhf{}
+\fancyhead[L]{ \turtleguard }
+\fancyhead[R]{ Opdracht 5 (AAI) }
+\fancyfoot[R]{\thepage}
+
+\titleformat{\chapter}[hang]
+{\normalfont\huge\bfseries}{\thechapter.}{10pt}{\huge}
+\titlespacing{\chapter}{0pt}{-30pt}{20pt}
+
+\setlength{\parindent}{0.2em}
+
+\textwidth=400pt
+\geometry{
+    left=25mm
+}
+
+\renewcommand{\contentsname}{Inhoudsopgave}
+%\RaggedRight % Don't 'block-justify' text
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+
+% Commands
+\newcommand{\teambox}{
+  \begin{tcolorbox}[hbox, colback=blue!5!white,colframe=blue!75!black,
+    left=.1mm, right=.1mm, top=.1mm, bottom=.1mm, fontupper=\scriptsize\sffamily]
+    Team Keuze
+  \end{tcolorbox}
+}
+
+\newcommand{\personalbox}{
+  \begin{tcolorbox}[hbox, colback=green!5!white,colframe=green!75!black,
+    left=.1mm, right=.1mm, top=.1mm, bottom=.1mm, fontupper=\scriptsize\sffamily]
+    Persoonlijke Keuze
+  \end{tcolorbox}
+}
+\newcommand{\teamchoice}[1]{
+  \section[ #1 ]{#1~\mbox{\teambox}}
+}
+
+\newcommand{\personalchoice}[1]{
+  \section[ #1 ]{#1~\mbox{\personalbox}}
+}
+\newcommand{\turtleguard}{\mbox{TurtleGuard\texttrademark}\xspace}
+
+
+% Document
+\begin{document}
+
+
+% Title Page
+\begin{titlepage}
+    \begin{center}
+        \vspace*{.9cm}
+        \Huge
+        \textbf{ Opdracht 5 - K-Nearest Neighbor (AAI)}\\
+        \vspace{0.2cm}
+        % \normalsize
+
+
+        % \vspace{1cm}
+        % \Large
+        % \textbf{Mede mogelijk gemaakt door} \\
+        % \includegraphics[width=0.2\textwidth]{Images/logouni.png}
+
+
+        \vfill
+      \end{center}
+        \textbf{Student:} Vincent van Setten - 1734729 \\
+        \textbf{Opdrachtgever:} HU University of Applied Sciences\\
+        \textbf{Datum:} \today \\
+        \vspace{2cm}
+\end{titlepage}
+
+
+% ToC
+\tableofcontents
+
+
+\clearpage  % End of the page
+
+\chapter{Code Uitleg}
+\section{Call-Tree}
+\begin{verbatim}
+  main
+  ....Dataset.__init__
+  ........load_dataset
+  ........load_dataset_labels
+  ....Dataset.__init__
+  ........load_dataset
+  ........load_dataset_labels
+  ....Dataset.__init__
+  ........load_dataset
+  ........load_dataset_labels
+  ....KnnAlgorithm.__init__
+  ........Dataset.normalize
+  ............Dataset.calculate_min_max
+  ....KnnAlgorithm.find_best_kvalue
+  ........KnnAlgorithm.get_success_percentage
+  ............Classifier.__init__
+  ................compute_distance_euclidean
+  ............get_instances_by_distance
+  ................compute_distance_euclidean
+  ............get_k_closest_instances
+  ............get_label_occurrence_counts
+  ....KnnAlgorithm.get_classifications_for_data
+  ........Classifier.__init__
+  ................compute_distance_euclidean
+  ............get_instances_by_distance
+  ................compute_distance_euclidean
+  ............get_k_closest_instances
+  ............get_label_occurrence_counts
+  \end{verbatim}
+
+\section{Totaal Uitleg}
+In de main worden de volgende stappen genomen.
+Ten eerste worden de datasets ingeladen vanuit de .csv bestanden op de canvas pagina.
+We hebben hierbij de volgende sets. Elke dataset bevat feature vectors(in Dataset.vectors) en, wanneer toepasbaar, labels(Dataset.labels).
+\begin{enumerate}
+  \item De Training Set - Dit is de weer data uit het jaar 2000 en wordt gebruikt om de classifier op te zetten voor beide stukken code.
+  \item De Validation Set - Dit is de weer data uit het jaar 2001 en wordt gebruikt om de beste k value te vinden en op basis van deze k value het success percentage te vinden
+  \item De 'Dataset To Classify'. Dit is de weer data uit de tabel op de opdracht pagina. Deze worden geclassified met het classification\_algorithm.
+\end{enumerate}
+
+Ten tweede wordt een KnnAlgorithm instantie gemaakt. Dit is simpelweg een klasse die een training set en een andere dataset combineert om hierbij een functie uit te voeren(zoals het vinden van de beste k value).
+In dit geval wordt dat hier ook gedaan. Door middel van de 'find\_best\_kvalue' wordt voor elke k waarde tussen 1 en 250 gekeken wat de success rate is.
+Dit wordt gedaan door te vergelijken voor elke classificatie van de validation set of de classificatie klopt. Hieruit komt een percentage. 
+Het hoogste percentage is hierbij de beste k waarde.
+\par\smallskip
+Als laatste wordt nog een KnnAlgorithm instantie gemaakt, dit keer met de training set en de dataset to classify.
+Met de gevonden k-waarde van de vorige stap wordt een classificatie gemaakt voor elke feature vector in de 'Dataset to Classify'
+
+
+
+\chapter{Resultaten van de Code}
+De code heeft de volgende resultaten opgeleverd.
+\begin{enumerate}
+  \item De beste K-Value is 58(bij het gebruik van de training set en de validatie set).
+  \item Hierbij is het correctheidspercentage 65\%
+  \item Data normalisatie verlaagt het percentage naar 63\% en staat daarom uit in de code(met een boolean bij het aanmaken van de datasets).
+\end{enumerate}
+
+De classificatie tabel is als volgt geclassificeerd.
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|l|l|l|l|l|l|l|l|l|}
+  \hline
+  & \textbf{FG} & \textbf{TG} & \textbf{TN} & \textbf{TX} & \textbf{SQ} & \textbf{DR} & \textbf{RH} & \textbf{Classificatie} \\
+  \hline
+  40;52;2;102;103;0;0 & 4 & 5.2 & 0.2 & 10.2 & 10.3 & 0 & 0 & lente\\
+  \hline
+  25;48;-18;105;72;6;1 & 2.5 & 4.8 & -1.8 & 10.5 & 7.2 & 0.6 & 1 & winter \\
+  \hline
+  23;121;56;150;25;18;18 & 2.3 & 12.1 & 5.6 & 15.0 & 2.5 & 1.8 & 1.8 & lente\\
+  \hline
+  27;229;146;308;130;0;0 & 2.7 & 22.9 & 14.6 & 30.8 & 13.0 & 0 & 0 & zomer\\
+  \hline
+  41;65;27;123;95;0;0 & 4.1 & 6.5 & 2.7 & 12.3 & 9.5 & 0 & 0 & lente\\
+  \hline
+  46;162;100;225;127;0;0 & 4.6 & 16.2 & 10.0 & 22.5 & 12.7 & 0 & 0 & zomer \\
+  \hline
+  23;-27;-41;-16;0;0;-1 & 2.3 & -2.7 & -4.1 & -1.6 & 0 & 0 & 0.05 & winter\\
+  \hline
+  28;-78;-106;-39;67;0;0 & 2.8 & -7.8 & -10.6 & -3.9 & 6.7 & 0 & 0 & winter \\
+  \hline
+  38;166;131;219;58;16;41 & 3.8 & 16.6 & 13.1 & 21.9 & 5.8 & 1.6 & 4.1 & zomer\\
+  \hline
+  \end{tabular}
+  \caption{Classificatie van days.csv}
+  \label{tab:class_days}
+  \end{table}
+  
+
+\chapter{Vraag Beantwoording}
+De beantwoording van de vragen staat eigenlijk al in hoofdstuk 2. Hier alsnog nogmaals de concrete antwoorden op de vragen.
+\begin{enumerate}
+  \item What is the best value for k? \\
+  De beste K-Value is 58(bij het gebruik van de training set en de validatie set).
+  \item Express the error as a percentage of the validation-set that was classified incorrectly.\\
+   Het correctheidspercentage is 65\%
+\end{enumerate}
+
+"Also use your classifier to determine the season of these following days:" \\
+De classificatie tabel is als volgt geclassificeerd.
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|l|l|l|l|l|l|l|l|l|}
+  \hline
+  & \textbf{FG} & \textbf{TG} & \textbf{TN} & \textbf{TX} & \textbf{SQ} & \textbf{DR} & \textbf{RH} & \textbf{Classificatie} \\
+  \hline
+  40;52;2;102;103;0;0 & 4 & 5.2 & 0.2 & 10.2 & 10.3 & 0 & 0 & lente\\
+  \hline
+  25;48;-18;105;72;6;1 & 2.5 & 4.8 & -1.8 & 10.5 & 7.2 & 0.6 & 1 & winter \\
+  \hline
+  23;121;56;150;25;18;18 & 2.3 & 12.1 & 5.6 & 15.0 & 2.5 & 1.8 & 1.8 & lente\\
+  \hline
+  27;229;146;308;130;0;0 & 2.7 & 22.9 & 14.6 & 30.8 & 13.0 & 0 & 0 & zomer\\
+  \hline
+  41;65;27;123;95;0;0 & 4.1 & 6.5 & 2.7 & 12.3 & 9.5 & 0 & 0 & lente\\
+  \hline
+  46;162;100;225;127;0;0 & 4.6 & 16.2 & 10.0 & 22.5 & 12.7 & 0 & 0 & zomer \\
+  \hline
+  23;-27;-41;-16;0;0;-1 & 2.3 & -2.7 & -4.1 & -1.6 & 0 & 0 & 0.05 & winter\\
+  \hline
+  28;-78;-106;-39;67;0;0 & 2.8 & -7.8 & -10.6 & -3.9 & 6.7 & 0 & 0 & winter \\
+  \hline
+  38;166;131;219;58;16;41 & 3.8 & 16.6 & 13.1 & 21.9 & 5.8 & 1.6 & 4.1 & zomer\\
+  \hline
+  \end{tabular}
+  \caption{Classificatie van days.csv}
+  \label{tab:class_days}
+  \end{table}
+\end{document}
